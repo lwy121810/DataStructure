@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        function Stack() {
+            var items = []
+
+            Stack.prototype.push = function (el) {
+                items.push(el)
+            }
+            Stack.prototype.pop = function () {
+                return items.pop()
+            }
+            Stack.prototype.peek = function () {
+                if (items.length === 0) return null
+                return items[items.length - 1]
+            }
+            Stack.prototype.isEmpty = function () {
+                return items.length === 0
+            }
+            Stack.prototype.size = function () {
+                return items.length
+            }
+        }
+
+        // 十进制转二进制
+        function dec2bin(decNumber) {
+            const stack = new Stack()
+
+            while(decNumber > 0) {
+                const remainder = decNumber % 2
+                stack.push(remainder)
+                decNumber = Math.floor(decNumber / 2)
+            }
+            var binayriString = ""
+            while(!stack.isEmpty()) {
+                binayriString += stack.pop()
+            }
+            return binayriString
+        }
+
+        const res = dec2bin(100)
+        console.log(res);
+        
+    </script>
+</body>
+
+</html>

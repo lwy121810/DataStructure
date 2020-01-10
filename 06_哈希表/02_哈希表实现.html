@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // 封装哈希表
+        // 使用链地址法来实现
+        /**
+        每个下标存储的是一个数组，每个数组中存放key&value 
+            value是我们想要保存的值，
+            key是关键字，是通过哪个关键字放进来的 
+                比如一个存放单词的哈希表，key是Python的话 value对应读音/解释/使用场景等信息
+        */
+        /**
+        实现的哈希表基于数组（storage），对应的index存储的是一个数组(bucket)
+        每个bucket存储的是key&value 这里是使用数组存储key/value。其实元组更合适 但是js中没有该数据类型
+
+        [[[key,value]],[[key,value]],[[key,value]]]
+        */
+        function HashTable() {
+            // 存放元素的数组
+            this.storage = []
+            // 当前哈希表中存放了多少个元素
+            this.count = 0
+            // 哈希表的总长度 也就是数组的长度
+            // 哈希表的长度最好是一个质数
+            this.limit = 7
+
+            // 哈希函数
+            // 1. 将字符串转为较大的数字：hashCode
+            // 2. 将大的数字hashCode压缩到数组范围(size就是数组的长度)
+            HashTable.prototype.hashFunc = function (str, size) {
+                // 1.定义hashCode变量
+                var hashCode = 0
+                // 2. 霍纳算法，计算hashCode的值
+                for (let i = 0; i < str.length; i++) {
+                    // 常量使用质数 常使用37
+                    hashCode = 37 * hashCode + str.charCodeAt(i)
+                }
+                // 3. 模运算 压缩hashCode到数组范围
+                var index = hashCode % size
+                return index
+            }
+
+            // 插入/修改元素 
+            // 应该是同一个函数, 插入<key,value>时，如果原来不存在该key，那就是插入操作
+            // 如果已经存在该key，那就是修改操作
+            HashTable.prototype.put = function (key, value) {
+                // 1. 根据key获取索引值
+                var index = this.hashFunc(key, this.limit)
+                // 2. 根据index取出对应的bucket
+                var bucket = this.storage[index]
+                // 3.判断是否
+                if (bucket == null) {
+                    // 创建一个数组存放到对应的下标
+                    bucket = []
+                    this.storage[index] = bucket
+                }
+                // 4.判断是添加还是修改操作
+                for (let i = 0; i < bucket.length; i++) {
+                    const tuple = bucket[i];
+                    if (tuple[0] == key) {
+                        // 找到了对应的key 修改操作
+                        tuple[1] = value
+                        return
+                    }
+                }
+                // 5. 增加操作/ 到这里的话说明就是添加
+                bucket.push([key, value])
+                // 长度加一
+                this.count += 1
+                
+                // 判断是否需要扩容
+                // var loadFactor = this.count / this.limit
+                if (this.count > this.limit * 0.75) {
+                    var newSize = this.limit * 2
+                    var newLimit = this.getPrime(newSize)
+                    this.resize(newLimit)
+                }
+            }
+
+            // 获取元素的方法
+            HashTable.prototype.get = function (key) {
+                // 1.根据key获取对应的下标
+                var index = this.hashFunc(key, this.limit)
+
+                // 2.获取相应下标的bucket
+                var bucket = this.storage[index]
+
+                // 3.判断bucket是否为空
+                if (bucket == null) {
+                    // bucket为空 说明该下标还没有存储数据 也就是没有该数据
+                    return null
+                }
+
+                // 4.线性查找bucket
+                for (let i = 0; i < bucket.length; i++) {
+                    const tuple = bucket[i];
+                    if (tuple[0] == key) {
+                        return tuple[1]
+                    }
+                }
+                // 5.没有找到 返回null
+                return null
+            }
+
+            // 删除操作
+            HashTable.prototype.remove = function (key) {
+                // 1.根据key获取index
+                var index = this.hashFunc(key, this.limit)
+                // 2.获取对应的bucket
+                var bucket = this.storage[index]
+                // 3.判断bucket
+                if (bucket == null) {
+                    return null
+                }
+                // 4.线性查找bucket
+                for (let i = 0; i < bucket.length; i++) {
+                    const tuple = bucket[i];
+                    if (tuple[0] == key) {
+                        // 找到该元素 从数组中删除
+                        bucket.splice(i, 1)
+                        // 元素个数减一
+                        this.count -= 1
+                        // 删除之后 判断是否需要缩容
+                        // 这里限制数组的最低长度为7 
+                        if (this.limit > 7 && this.count < this.limit * 0.25) {
+                            var newSize = Math.floor(this.limit / 2)
+                            var newLimit = this.getPrime(newSize)
+                            this.resize(newLimit)
+                        }
+                        // 返回删除的元素
+                        return tuple[1]
+                    }
+                }
+                // 5.没有找到
+                return null
+            }
+
+            // 其他方法
+            HashTable.prototype.isEmpty = function () {
+                return this.count == 0
+            }
+            HashTable.prototype.size = function () {
+                return this.count
+            }
+
+            // 扩容
+
+            // 扩容问题
+            // 上面的哈希表中数组的长度定义了长度为7 但是我们使用的是链地址法，LoadFactor可以大于1，也就是可以无限添加
+            // 随着数据的增多 每个index对应的bucket也越来越长 效率就会越低
+            // 所以合适的情况下对数组进行扩容
+
+            // 如何进行扩容
+            // 可以简单的先扩容两倍（质数的问题再说）
+            // 扩容之后，所有的数据项一定要「同时进行修改」（重新调用哈希函数，获取对应的index）
+            // 这是一个「耗时的过程」 但是如果数组想要扩容，这是一个「必要的」过程
+
+            // 什么时候进行扩容
+            // 比较常见的是loadFactor > 0.75的时候进行扩容（Java就是）
+            // loadFactor < 0.25 进行缩容
+            HashTable.prototype.resize = function (newLimit) {
+                // 1.保存旧的数组
+                var oldStorage = this.storage
+                // 2.重置属性
+                this.storage = []
+                this.count = 0
+                this.limit = newLimit
+
+                // 3.遍历oldStorage所有的bucket
+                for (let i = 0; i < oldStorage.length; i++) {
+                    const bucket = oldStorage[i];
+                    if (bucket == null) {// 并不是每个index都有对应的bucket
+                        continue
+                    }
+                    // 将bucket中所有的tuple添加到新的数组中
+                    for (let j = 0; j < bucket.length; j++) {
+                        const tuple = bucket[j];
+                        this.put(tuple[0], tuple[1])
+                    }
+                }
+            }
+            // 判断质数
+            HashTable.prototype.isPrime = function (num) {
+                // 直接遍历到num的平方根即可
+                var temp = parseInt(Math.sqrt(num))
+                for (var i = 2; i <= temp; i++) {
+                    if (num % i == 0) {
+                        return false
+                    }
+                }
+                return true
+            }
+
+            // 获取质数
+            HashTable.prototype.getPrime = function(num) {
+                while(!this.isPrime(num)) {
+                    num++
+                }
+                return num
+            }
+
+        }
+
+
+        // 测试哈希表
+        // 1.创建哈希表
+        var ht = new HashTable()
+
+        // 2.插入数据
+        ht.put("abc", "123")
+        ht.put("cba", "321")
+        ht.put("nba", "521")
+        ht.put("mba", "520")
+
+        // 3.获取数据
+        alert(ht.get("abc"))
+        ht.put("abc", "111")
+        alert(ht.get("abc"))
+
+        // 4.删除数据
+        alert(ht.remove("abc"))
+        alert(ht.get("abc"))
+
+    </script>
+</body>
+
+</html>

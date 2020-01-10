@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<!-- 
+add(value)：向集合添加一个新的项。
+remove(value)：从集合移除一个值。
+has(value)：如果值在集合中，返回true，否则返回false。
+clear()：移除集合中的所有项。
+size()：返回集合所包含元素的数量。与数组的length属性类似。
+values()：返回一个包含集合中所有值的数组。
+ -->
+
+<body>
+    <script>
+        function Set() {
+            // 使用一个对象来保存集合的元素
+            this.items = {}
+
+            // 集合的操作方法
+            Set.prototype.add = function (value) {
+                if (this.has(value)) {
+                    return false
+                }
+                this.items[value] = value
+                return true
+            }
+            Set.prototype.has = function (value) {
+                return this.items.hasOwnProperty(value)
+            }
+            Set.prototype.remove = function (value) {
+                if (!this.has(value)) {
+                    return false
+                }
+                delete this.items[value]
+                return true
+            }
+            Set.prototype.clear = function () {
+                this.items = {}
+            }
+            Set.prototype.size = function () {
+                return Object.keys(this.items).length
+            }
+            Set.prototype.values = function () {
+                return Object.keys(this.items)
+            }
+        }
+
+        // 测试和使用集合类
+        var set = new Set()
+
+        // 添加元素
+        set.add(1)
+        alert(set.values()) // 1
+        set.add(1)
+        alert(set.values()) // 1
+
+        set.add(100)
+        set.add(200)
+        alert(set.values()) // 1,100,200
+
+        // 判断是否包含元素
+        alert(set.has(100)) // true
+
+        // 删除元素
+        set.remove(100)
+        alert(set.values()) // 1, 200
+
+        // 获取集合的大小
+        alert(set.size()) // 2
+        set.clear()
+        alert(set.size()) // 0
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<!-- append(element)：向列表尾部添加一个新的项
+insert(position, element)：向列表的特定位置插入一个新的项。
+remove(element)：从列表中移除一项。
+indexOf(element)：返回元素在列表中的索引。如果列表中没有该元素则返回-1。
+removeAt(position)：从列表的特定位置移除一项。
+isEmpty()：如果链表中不包含任何元素，返回true，如果链表长度大于0则返回false。
+size()：返回链表包含的元素个数。与数组的length属性类似。
+toString()：由于列表项使用了Node类，就需要重写继承自JavaScript对象默认的toString方法，让其只输出元素的值。 
+-->
+
+<body>
+    <script>
+        // 双向链表
+        function DoublyLinkedList() {
+            function Node(element) {
+                this.element = element
+                // 下一个节点的引用
+                this.next = null
+                // 指向上一个节点
+                this.previous = null
+            }
+            this.length = 0
+            // 指向第一个节点
+            this.head = null
+            // 最后一个节点
+            this.tail = null
+
+            // 向链表末尾添加元素
+            DoublyLinkedList.prototype.append = function (element) {
+                // 创建节点
+                const node = new Node(element)
+                // 
+                if (this.head == null) {// 添加到第一个
+                    this.head = node
+                    this.tail = node
+                } else {
+                    this.tail.next = node
+                    node.previous = this.tail
+                    this.tail = node
+                }
+                this.length += 1
+            }
+
+            // 插入元素到指定的位置
+            DoublyLinkedList.prototype.insert = function (position, element) {
+                if (position < 0 || position > this.length) {
+                    return false
+                }
+                // 创建节点
+                const node = new Node(element)
+
+                if (position == 0) {// 插入到第一个
+                    if (this.head) {//链表不为空
+                        // node的next指向目前的第一个
+                        this.head.previous = node
+                        node.next = this.head
+                        // 修改head的指向
+                        this.head = node
+                    } else {// 这时候链表是空的
+                        this.head = node
+                        this.tail = node
+                    }
+                } else if (position == this.length) {// 插入到最后
+                    this.tail.next = node
+                    node.previous = this.tail
+                    this.tail = node
+                } else {// 插入到中间
+                    // 找到该位置的元素
+                    var current = this.head
+                    var index = 0
+                    while (index < position) {
+                        current = current.next
+                        index++
+                    }
+
+                    // 修改指向
+                    const prev = current.previous
+
+                    // 修改上一个节点的next 指向node
+                    prev.next = node
+                    // 修改node的next -> current
+                    node.next = current
+                    node.previous = prev
+                    // 修改current的prev
+                    current.previous = node
+                }
+
+                // 长度加一
+                this.length += 1
+                return true
+            }
+
+            /// 获取元素的下标
+            DoublyLinkedList.prototype.indexOf = function (element) {
+                var current = this.head
+                var index = 0
+                while (current) {
+                    if (current.element === element) {
+                        return index
+                    }
+                    current = current.next
+                    index++
+                }
+                return -1
+            }
+
+
+
+            // 删除指定位置的元素
+            DoublyLinkedList.prototype.removeAt = function (position) {
+                if (position < 0 || position >= this.length) {
+                    return null
+                }
+                var current = null
+                if (position == 0) {// 删除的是第一个
+                    current = this.head
+                    if (this.length == 1) {
+                        this.head = null
+                        this.tail = null
+                    } else {
+                        // 
+                        const first = this.head.next
+                        first.previous = null
+                        this.head = first
+                    }
+                } else if (position == this.length - 1) {//删除的是最后一个
+                    current = this.tail
+                    const newLast = this.tail.previous
+                    newLast.next = null
+                    this.tail = newLast
+                } else {// 删除的是中间的位置
+                    // 找到该位置的节点
+                    current = this.head
+                    var index = 0
+                    while (index < position) {
+                        current = current.next
+                        index++
+                    }
+                    const prev = current.previous
+                    const next = current.next
+
+                    // 修改prev的指向
+                    prev.next = next
+                    // 修改next的指向
+                    next.previous = prev
+                }
+
+                // 长度减一
+                this.length -= 1
+                return current.element
+            }
+
+            /// 删除某一个元素
+            DoublyLinkedList.prototype.remove = function (element) {
+                const index = this.indexOf(element)
+                return this.removeAt(index)
+            }
+            // 获取链表长度
+            DoublyLinkedList.prototype.size = function () {
+                return this.length
+            }
+            DoublyLinkedList.prototype.isEmpty = function () {
+                return this.length === 0
+            }
+            DoublyLinkedList.prototype.getHead = function () {
+                return this.head.element
+            }
+            // 
+            DoublyLinkedList.prototype.getTail = function () {
+                return this.tail.element
+            }
+
+            DoublyLinkedList.prototype.forwardString = function () {
+                var listStr = ""
+                var current = this.head
+                while (current) {
+                    listStr += ',' + current.element
+                    current = current.next
+                }
+                return listStr.slice(1)
+            }
+            DoublyLinkedList.prototype.reverseString = function () {
+                var listStr = ''
+                var current = this.tail
+                while (current) {
+                    listStr += ',' + current.element
+                    current = current.previous
+                }
+                return listStr.slice(1)
+            }
+
+            DoublyLinkedList.prototype.toString = function () {
+                return this.forwardString()
+            }
+        }
+
+
+
+        // 1.创建双向链表对象
+        var list = new DoublyLinkedList()
+
+        // 2.追加元素
+        list.append("abc")
+        list.append("cba")
+        list.append("nba")
+        list.append("mba")
+
+        // 3.获取所有的遍历结果
+        // alert(list.forwardString()) // abc,cba,nba,mba
+        // alert(list.reverseString()) // mba,nba,cba,abc
+        // alert(list) // abc,cba,nba,mba
+
+        // 4.insert方法测试
+        list.insert(0, "100")
+        list.insert(2, "200")
+        list.insert(6, "300")
+        // alert(list) // 100,abc,200,cba,nba,mba,300
+
+        // 5.removeAt方法测试
+        alert(list.removeAt(0)) // 100
+        alert(list.removeAt(1)) // 200
+        alert(list.removeAt(4)) // 300
+        alert(list) // abc,cba,nba,mba
+
+        // 6.indexOf方法测试
+        alert(list.indexOf("abc")) // 0
+        alert(list.indexOf("cba")) // 1
+        alert(list.indexOf("nba")) // 2
+        alert(list.indexOf("mba")) // 3
+
+        // 7.remove方法测试
+        alert(list.remove("abc")) // abc
+        alert(list) // cba,nba,mba
+    </script>
+</body>
+
+</html>
