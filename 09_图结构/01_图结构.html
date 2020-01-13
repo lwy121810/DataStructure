@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="dict.js"></script>
+    <script src="queue.js"></script>
+
+    <script>
+        // 封装图结构
+        function Graph() {
+            // 顶点集合（数组）
+            this.vertexes = []
+            // 边（字典）
+            this.edges = new Dictionary()
+
+            // 方法
+            // 1.添加顶点
+            Graph.prototype.addVertex = function (v) {
+                this.vertexes.push(v)
+                this.edges.set(v, [])
+            }
+
+            // 2.添加边 假设是无向图
+            Graph.prototype.addEdge = function (v1, v2) {
+                this.edges.get(v1).push(v2)
+                this.edges.get(v2).push(v1)
+            }
+            Graph.prototype.toString = function () {
+                var result = ""
+                for (var i = 0; i < this.vertexes.length; i++) {
+                    var v = this.vertexes[i]
+                    result += v + "->"
+                    // 取出顶点对应的边
+                    var vEdges = this.edges.get(v)
+                    for (var j = 0; j < vEdges.length; j++) {
+                        result += vEdges[j] + " "
+                    }
+                    result += '\n'
+                }
+                return result
+            }
+
+            // 图的遍历：每个顶点访问一遍 并且不能有重复的访问
+            // 1.广度优先遍历(Breadth-First Search 简称BFS)
+            // 2.深度优先遍历(Depth-First Search简称DFS)
+            // 都需要明确第一个被访问的顶点
+
+            /**
+             * BFS：基于队列，入队列的顶点先被探索
+             * DFS：基于栈或使用递归，通过将顶点存入栈中，顶点是沿着
+                    路径被探索，存在新的相邻顶点就去访问
+            
+             * 为了方便记录顶点是否被访问过，使用三种颜色来标记他们的状态
+             * 
+             * 白色：表示该顶点还没有被访问
+             * 灰色：该顶点被访问过，但还没有被探索过
+             * 黑色：该顶点被访问过且被完全探索过
+             */
+            // 初始化颜色状态
+            Graph.prototype.initializeColor = function () {
+                var colors = []
+                for (var i = 0; i < this.vertexes.length; i++) {
+                    colors[this.vertexes[i]] = 'white'
+                }
+                return colors
+            }
+
+            Graph.prototype.bfs = function (initV, handler) {
+                var colors = this.initializeColor()
+
+                var queue = new Queue()
+
+                queue.enqueue(initV)
+
+                while(!queue.isEmpty()) {
+                    var v = queue.dequeue()
+                    colors[v] = 'gray'
+
+                    var vList = this.edges.get(v)
+
+                    for(var i = 0; i < vList.length; i++) {
+                        var e = vList[i]
+                        if (colors[e] === 'white') {
+                            colors[e] = 'gray'
+                            queue.enqueue(e)
+                        }
+                    }
+
+                    handler(v)
+
+                    colors[v] = 'black'
+                }
+
+            }
+
+        }
+
+
+
+        // 测试代码
+        var graph = new Graph()
+
+        // 添加顶点
+        var myVertexes = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+        for (var i = 0; i < myVertexes.length; i++) {
+            graph.addVertex(myVertexes[i])
+        }
+
+        // 添加边
+        graph.addEdge('A', 'B');
+        graph.addEdge('A', 'C');
+        graph.addEdge('A', 'D');
+        graph.addEdge('C', 'D');
+        graph.addEdge('C', 'G');
+        graph.addEdge('D', 'G');
+        graph.addEdge('D', 'H');
+        graph.addEdge('B', 'E');
+        graph.addEdge('B', 'F');
+        graph.addEdge('E', 'I');
+
+        // alert(graph)
+        graph.bfs(graph.vertexes[0])
+
+    </script>
+</body>
+
+</html>
