@@ -72,34 +72,65 @@
                 return colors
             }
 
-            Graph.prototype.bfs = function (initV, handler) {
+            Graph.prototype.bfs = function(initV, handler) {
+                // 初始化颜色
                 var colors = this.initializeColor()
-
+                // 初始化队列
                 var queue = new Queue()
-
+                // 将初始化顶点添加进队列
                 queue.enqueue(initV)
-
+                // 遍历队列
                 while(!queue.isEmpty()) {
+                    // 出列顶点
                     var v = queue.dequeue()
+                    // 标记该顶点已经探测过
                     colors[v] = 'gray'
-
+                    // 遍历该顶点的所有相邻的顶点
                     var vList = this.edges.get(v)
-
                     for(var i = 0; i < vList.length; i++) {
-                        var e = vList[i]
-                        if (colors[e] === 'white') {
-                            colors[e] = 'gray'
+                        // 依次取出相邻的顶点
+                        var e = vList[e]
+                        // 判断该顶点的状态
+                        if (colors[e] == 'white') {// 说明没有探测过该顶点
+                            // 没有探测过的顶点添加进队列
                             queue.enqueue(e)
+                            // 标记为探测过
+                            colors[e] = 'gray'
                         }
                     }
-
+                    // 处理顶点
                     handler(v)
-
+                    // 标记顶点为已处理
                     colors[v] = 'black'
                 }
-
             }
 
+
+            // 深度优先搜索 dfs
+            Graph.prototype.bfs = function(initV, handler) {
+                // 初始化颜色
+                var colors = this.initializeColor()
+                this.bfsVisit(initV, colors, handler)
+            }
+            Graph.prototype.bfsVisit = function(v, colors, handler) {
+                // 标记已经访问
+                colors[v] = 'gray'
+                // 处理该顶点
+                handler(v)
+                // 取出所有相邻的顶点
+                var vList = this.edges.get(v)
+                // 遍历
+                for(var i = 0; i < vList.length; i++) {
+                    // 取出相邻的点
+                    var e = vList[i]
+                    if (colors[e] == 'white') {// 如果还没有探测
+                        // 访问该顶点
+                        this.bfsVisit(e,colors, handler)
+                    }
+                }
+                // 标记顶点已经处理过
+                colors[v] = 'black'
+            }
         }
 
 
