@@ -51,7 +51,6 @@
                 }
             }
 
-
             // 选择排序：每次选择最小的一个排到最前面
             // 选择排序的效率：
             // 比较次数：O(n^2)
@@ -63,7 +62,7 @@
                     // 第一次循环比较length - 1次
                     // 第二次循环比较length - 2次
                     // ...
-                    
+
                     // 每次循环默认最小值的下标就是当前循环的第一个
                     var minIndex = j
                     for (var i = minIndex + 1; i < length; i++) {
@@ -80,8 +79,47 @@
 
 
             // 插入排序
+            /**
+             * 第一个数据认为是有序的
+             * 每次循环的时候 让元素跟位于它左边的元素进行对比 直到有元素比当前元素小为止
+             * 
+             * 插入排序的效率是大于选择排序和冒泡排序的
+             */
+            ArrayList.prototype.insertionSort = function () {
+                // 取出长度
+                var length = this.array.length
+                //外层循环：从第一个位置开始获取数据 向前面局部有序进行插入
+                for (var i = 1; i < length; i++) {
+                    // 取出当前位置的数据
+                    var temp = this.array[i]
+                    var j = i
+                    while (j > 0 && this.array[j - 1] > temp) {
+                        // 前面的元素大于当前的元素
+                        // 将前面的元素移到后一个位置
+                        this.array[j] = this.array[j - 1]
+                        // 依次拿当前取出的数据跟前面的数据一一对比
+                        j--
+                    }
+                    // 到这里的时候 j就是当前取出的数据应该插入的位置
+                    if (j !== i) {
+                        this.array[j] = temp
+                    }
+                }
+            }
 
             // 希尔排序
+            /**
+             * 希尔排序是插入排序的一种高效的改进版 效率比插入排序更快
+             */
+            
+            ArrayList.prototype.shellSort = function() {
+                // 1.获取数组长度
+                var length = this.array.length
+                
+                // 2.初始化的增量
+                var gap = Math.floor(length / 2)
+
+            }
 
             // 快速排序
 
@@ -106,6 +144,9 @@
         alert(list) // 2,3,4,5,6,10,11
 
         list.selectionSort()
+        alert(list)
+
+        list.insertionSort()
         alert(list)
     </script>
 </body>
