@@ -111,17 +111,39 @@
             /**
              * 希尔排序是插入排序的一种高效的改进版 效率比插入排序更快
              */
-            
-            ArrayList.prototype.shellSort = function() {
+
+            ArrayList.prototype.shellSort = function () {
                 // 1.获取数组长度
                 var length = this.array.length
-                
                 // 2.初始化的增量
                 var gap = Math.floor(length / 2)
+                // while循环：gap不断减小
+                while (gap >= 1) {
+                    // 根据gap进行分组 对每一个组进行插入排序
+                    for (var i = gap; i < length; i++) {
+                        // 取出元素
+                        var temp = this.array[i]
+                        var j = i
+                        // 如果当前取出的元素小于前面的元素
+                        while (j > gap - 1 && temp < this.array[j - gap]) {
+                            // 将前一个数据后移
+                            this.array[j] = this.array[j - gap]
+                            // 变化j
+                            j -= gap
+                        }
+                        // 这里j就是temp应该放置的位置
+                        if (j !== i) {
+                            this.array[j] = temp
+                        }
+                    }
+                    // gap递减
+                    gap = Math.floor(gap / 2)
+                }
 
             }
 
-            // 快速排序
+            // 快速排序 
+
 
 
         }
@@ -129,24 +151,38 @@
         // 初始化数据项
         var list = new ArrayList()
 
-        list.insert(3)
-        list.insert(6)
-        list.insert(4)
-        list.insert(2)
-        list.insert(11)
-        list.insert(10)
+        // list.insert(3)
+        // list.insert(6)
+        // list.insert(4)
+        // list.insert(2)
+        // list.insert(11)
+        // list.insert(10)
+        // list.insert(5)
+
+        // alert(list)
+
+        list.insert(66)
+        list.insert(88)
+        list.insert(12)
+        list.insert(87)
+        list.insert(100)
         list.insert(5)
+        list.insert(566)
+        list.insert(23)
 
         alert(list)
 
         // 测试冒泡排序
-        list.bubbleSort()
-        alert(list) // 2,3,4,5,6,10,11
+        // list.bubbleSort()
+        // alert(list) // 2,3,4,5,6,10,11
 
-        list.selectionSort()
-        alert(list)
+        // list.selectionSort()
+        // alert(list)
 
-        list.insertionSort()
+        // list.insertionSort()
+        // alert(list)
+
+        list.shellSort()
         alert(list)
     </script>
 </body>
